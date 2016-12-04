@@ -1,5 +1,6 @@
 package com.vpals.apps.safetynettestapp;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -19,13 +20,24 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.safetynet.SafetyNet;
 import com.google.android.gms.safetynet.SafetyNetApi;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
+
+import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class MainActivity extends AppCompatActivity
         implements ConnectionCallbacks, OnClickListener {
 
     GoogleApiClient mGoogleApiClient;
+    ProgressDialog prgDialog;
     Button btnCheck;
     int counter = 0;
     @Override
@@ -34,6 +46,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        prgDialog = new ProgressDialog(this);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(SafetyNet.API)
                 .addConnectionCallbacks(this)
@@ -72,11 +85,50 @@ public class MainActivity extends AppCompatActivity
                         Status status = result.getStatus();
                         if (status.isSuccess()) {
                             Log.i("Safety Net Result", result.getJwsResult());
+                            invokeWs(result.getJwsResult());
                         } else {
                             Log.i("Safety Net Error", "Oops!");
                         }
                     }
                 });
+    }
+
+    private void invokeWs(String jwsResult){
+        prgDialog.setMessage("Please wait...");
+        prgDialog.show();
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "https://www.googleapis.com/androidcheck/v1/attestations/verify?key=";
+        String apiKey = "AIzaSyAQx9dRBNiz1BKRxGlY27rcM-A2YUWyhdQ";
+        JSONObject jsonMsg = new JSONObject();
+        try {
+            jsonMsg.put("signedAttestation",jwsResult);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        StringEntity entity = null;
+        try {
+            entity = new StringEntity(jsonMsg.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        client.post(getApplicationContext(), url + apiKey, entity, "application/json", new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                prgDialog.hide();
+                if(statusCode == 200) {
+                    String response = new String(responseBody);
+                    Log.i("Response Received: ", response);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    Log.i("Failure: ", "Rest call failed");
+            }
+        });
+
+
     }
 
     @Override
