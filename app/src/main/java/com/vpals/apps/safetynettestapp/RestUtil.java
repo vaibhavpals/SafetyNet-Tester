@@ -1,10 +1,12 @@
 package com.vpals.apps.safetynettestapp;
 
+
 import android.content.Context;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestHandle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,8 +21,9 @@ import cz.msebera.android.httpclient.entity.StringEntity;
  */
 
 public class RestUtil {
-    public static String doPost(Context context, String jwsResult) {
-        final String[] retStr = {""};
+
+    public static void doPost(Context context, String jwsResult) {
+
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "https://www.googleapis.com/androidcheck/v1/attestations/verify?key=";
         String apiKey = "AIzaSyAQx9dRBNiz1BKRxGlY27rcM-A2YUWyhdQ";
@@ -36,23 +39,24 @@ public class RestUtil {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
         client.post(context, url + apiKey, entity, "application/json", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if(statusCode == 200) {
+
                     String response = new String(responseBody);
                     Log.i("Response Received: ", response);
                     try {
                         JSONObject jsonRespose = new JSONObject(response);
                         if(jsonRespose.getBoolean("isValidSignature"))
-                        retStr[0] = "true";
+                        SafetyNetHelper.getInstance().setValidationStatus(true);
                         else
-                        retStr[0] = "false";
+                        SafetyNetHelper.getInstance().setValidationStatus(false);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+
             }
 
             @Override
@@ -60,6 +64,6 @@ public class RestUtil {
                 Log.i("Failure: ", "Rest call failed");
             }
         });
-        return retStr[0];
+
     }
 }

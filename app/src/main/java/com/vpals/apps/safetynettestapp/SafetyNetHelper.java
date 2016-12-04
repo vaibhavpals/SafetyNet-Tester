@@ -1,5 +1,6 @@
 package com.vpals.apps.safetynettestapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,6 +26,15 @@ public class SafetyNetHelper implements GoogleApiClient.ConnectionCallbacks, Goo
     private static SafetyNetResponseVO responseVO = null;
     private static Boolean validationStatus = false;
     private static Boolean safetyNetCallStatus = false;
+    ProgressDialog prgDialog;
+    private SafetyNetHelper()
+    {}
+
+    private static SafetyNetHelper helperInstance = new SafetyNetHelper();
+
+    public static SafetyNetHelper getInstance(){
+        return helperInstance;
+    }
 
     public static SafetyNetResponseVO getResponseVO() {
         return responseVO;
@@ -91,8 +101,8 @@ public class SafetyNetHelper implements GoogleApiClient.ConnectionCallbacks, Goo
                         if (status.isSuccess()) {
                             setSafetyNetCallStatus(true);
                             Log.i("Safety Net Result", result.getJwsResult());
+                            validateJwsResult(result.getJwsResult());
                             setResponseVO(parseJsonWebSignature(result.getJwsResult()));
-                            setValidationStatus(validateJwsResult(result.getJwsResult()));
                             Log.i("result: " , getResponseVO().toString());
                         } else {
                             setSafetyNetCallStatus(false);
@@ -122,10 +132,9 @@ public class SafetyNetHelper implements GoogleApiClient.ConnectionCallbacks, Goo
         }
     }
 
-    private boolean validateJwsResult (String jwsResult) {
-        String result = RestUtil.doPost(getmGoogleApiClient().getContext(),jwsResult);
-        if("true".equalsIgnoreCase(result))
-            return true;
-        return false;
+    private void validateJwsResult (String jwsResult) {
+
+        RestUtil.doPost(getmGoogleApiClient().getContext(),jwsResult);
+
     }
 }

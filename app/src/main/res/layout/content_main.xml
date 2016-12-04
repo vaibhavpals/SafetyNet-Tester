@@ -32,32 +32,35 @@
         android:textSize="40sp" />
 
     <TextView
-        android:text="CTS Profile Match : "
+        android:text="SafetyNet Call Success :"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_alignLeft="@+id/txtTitle"
-        android:layout_alignStart="@+id/txtTitle"
-        android:id="@+id/txtCtsProfileMatch" />
+        android:id="@+id/txtSafetyNetCallStatus"
+        android:layout_above="@+id/txtResponseValidationStatus"
+        android:layout_alignLeft="@+id/txtCtsProfileMatch"
+        android:layout_alignStart="@+id/txtCtsProfileMatch"
+        android:layout_marginBottom="30dp" />
 
     <TextView
         android:text="Response Signature Valid : "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/txtCtsProfileMatch"
-        android:layout_alignLeft="@+id/txtCtsProfileMatch"
-        android:layout_alignStart="@+id/txtCtsProfileMatch"
-        android:layout_marginTop="53dp"
-        android:id="@+id/txtResponseValidationStatus" />
+        android:id="@+id/txtResponseValidationStatus"
+        android:layout_marginBottom="44dp"
+        android:layout_alignBottom="@+id/txtCtsProfileMatch"
+        android:layout_alignLeft="@+id/txtSafetyNetCallStatus"
+        android:layout_alignStart="@+id/txtSafetyNetCallStatus" />
 
     <TextView
-        android:text="SafetyNet Call Success :"
+        android:text="CTS Profile Match : "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        android:id="@+id/txtSafetyNetCallStatus"
-        android:layout_below="@+id/txtResponseValidationStatus"
-        android:layout_alignLeft="@+id/txtResponseValidationStatus"
-        android:layout_alignStart="@+id/txtResponseValidationStatus" />
+        android:id="@+id/txtCtsProfileMatch"
+        android:layout_marginLeft="33dp"
+        android:layout_marginStart="33dp"
+        android:layout_marginBottom="137dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

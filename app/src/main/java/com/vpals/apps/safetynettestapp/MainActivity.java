@@ -1,5 +1,6 @@
 package com.vpals.apps.safetynettestapp;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,12 +18,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     Button btnCheck;
-    String ctsProfileMatch;
-    String safetyNetCallStatus;
-    String responseValidationStatus;
+    String ctsProfileMatch = "";
+    String safetyNetCallStatus = "";
+    String responseValidationStatus = "";
     TextView txtCtsProfileMatch;
     TextView txtSafetyNetCallStatus;
     TextView txtResponseValidationStatus;
+    SafetyNetHelper helperObj;
+    GoogleApiClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +35,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         btnCheck = (Button) findViewById(R.id.btnCheck);
+        btnCheck.setVisibility(View.INVISIBLE);
         txtCtsProfileMatch = (TextView) findViewById(R.id.txtCtsProfileMatch);
         txtResponseValidationStatus = (TextView) findViewById(R.id.txtResponseValidationStatus);
         txtSafetyNetCallStatus = (TextView) findViewById(R.id.txtSafetyNetCallStatus);
         btnCheck.setOnClickListener(this);
+        helperObj = SafetyNetHelper.getInstance();
+        helperObj.buildGoogleApiClient(getApplicationContext());
+        client = helperObj.getmGoogleApiClient();
+        client.connect();
+        btnCheck.setVisibility(View.VISIBLE);
+
     }
 
     @Override
@@ -57,9 +68,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.btnCheck) {
-            SafetyNetHelper helperObj = new SafetyNetHelper();
-            helperObj.buildGoogleApiClient(getApplicationContext());
-            GoogleApiClient client = helperObj.getmGoogleApiClient();
             client.connect();
             if (helperObj.getResponseVO() != null) {
                 if (helperObj.getResponseVO().isCtsProfileMatch())
@@ -78,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             txtCtsProfileMatch.setText("CTS Profile Match : " + ctsProfileMatch);
             txtSafetyNetCallStatus.setText("SafetyNet Call Success : " + safetyNetCallStatus);
             txtResponseValidationStatus.setText("Response Signature Valid : " + responseValidationStatus);
+
+
         }
     }
 }
