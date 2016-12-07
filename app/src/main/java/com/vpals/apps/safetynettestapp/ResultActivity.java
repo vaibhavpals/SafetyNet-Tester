@@ -2,12 +2,14 @@ package com.vpals.apps.safetynettestapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,6 +40,7 @@ public class ResultActivity extends AppCompatActivity
     TextView txtSafetyNetCallStatus;
     TextView txtResponseValidationStatus;
     GoogleApiClient mGoogleApiClient;
+    int color;
 
 
     @Override
@@ -82,22 +85,21 @@ public class ResultActivity extends AppCompatActivity
                     public void onResult(SafetyNetApi.AttestationResult result) {
                         Status status = result.getStatus();
                         if (status.isSuccess()) {
-                            //setSafetyNetCallStatus(true);
-                            txtSafetyNetCallStatus.setText("SafetyNet Call Success : true");
+                            safetyNetCallStatus = "true";
                             Log.i("Safety Net Result", result.getJwsResult());
                             validateJwsResult(result.getJwsResult());
                             SafetyNetResponseVO responseVo = new SafetyNetResponseVO();
                             responseVo = parseJsonWebSignature(result.getJwsResult());
                             if(responseVo.isCtsProfileMatch())
-                                txtCtsProfileMatch.setText("CTS Profile Match : true");
+                                ctsProfileMatch = "true";
                             else
-                                txtCtsProfileMatch.setText("CTS Profile Match : false");
+                                ctsProfileMatch = "false";
                             Log.i("result: ", responseVo.toString());
                         } else {
-                            //setSafetyNetCallStatus(false);
-                            txtSafetyNetCallStatus.setText("SafetyNet Call Success : false");
+
                             Log.i("Safety Net Error", "Oops!");
                         }
+
                     }
                 });
     }
@@ -150,13 +152,25 @@ public class ResultActivity extends AppCompatActivity
                     try {
                         JSONObject jsonRespose = new JSONObject(response);
                         if (jsonRespose.getBoolean("isValidSignature"))
-                            txtResponseValidationStatus.setText("Response Signature Valid : true");
+                            responseValidationStatus = "true";
                         else
-                            txtResponseValidationStatus.setText("Response Signature Valid : false");
+                            responseValidationStatus = "false";
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+                txtSafetyNetCallStatus.setText("SafetyNet Call Success : " + safetyNetCallStatus);
+                txtResponseValidationStatus.setText("Response Signature Valid : " + responseValidationStatus);
+                txtCtsProfileMatch.setText("CTS Profile Match : " + ctsProfileMatch);
+                if(safetyNetCallStatus.equalsIgnoreCase("false") || responseValidationStatus.equalsIgnoreCase("false")
+                        || ctsProfileMatch.equalsIgnoreCase("false"))
+                    color = Color.RED;
+                else if (safetyNetCallStatus.equalsIgnoreCase("true") && responseValidationStatus.equalsIgnoreCase("true")
+                        && ctsProfileMatch.equalsIgnoreCase("true"))
+                    color = Color.GREEN;
+                else
+                    color = Color.YELLOW;
+                setActivityBackgroundColor(color);
             }
 
             @Override
@@ -165,5 +179,10 @@ public class ResultActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    public void setActivityBackgroundColor(int color) {
+        View view = this.getWindow().getDecorView();
+        view.setBackgroundColor(color);
     }
 }
