@@ -1,5 +1,6 @@
 package com.vpals.apps.safetynettestapp;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -41,6 +42,7 @@ public class ResultActivity extends AppCompatActivity
     TextView txtResponseValidationStatus;
     GoogleApiClient mGoogleApiClient;
     int color;
+    ProgressDialog prgDialogue;
 
 
     @Override
@@ -55,7 +57,10 @@ public class ResultActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        safetyNetCallStatus = "false";
+        ctsProfileMatch = "unknown";
+        responseValidationStatus = "unknown";
+        performFinalActivities();
     }
 
     @Override
@@ -65,6 +70,9 @@ public class ResultActivity extends AppCompatActivity
         txtCtsProfileMatch = (TextView) findViewById(R.id.txtCtsProfileMatch);
         txtResponseValidationStatus = (TextView) findViewById(R.id.txtResponseValidationStatus);
         txtSafetyNetCallStatus = (TextView) findViewById(R.id.txtSafetyNetCallStatus);
+        prgDialogue = new ProgressDialog(this);
+        prgDialogue.setMessage("Please wait...");
+        prgDialogue.show();
         buildGoogleApiClient();
     }
 
@@ -96,7 +104,10 @@ public class ResultActivity extends AppCompatActivity
                                 ctsProfileMatch = "false";
                             Log.i("result: ", responseVo.toString());
                         } else {
-
+                            safetyNetCallStatus = "false";
+                            ctsProfileMatch = "unknown";
+                            responseValidationStatus = "unknown";
+                            performFinalActivities();
                             Log.i("Safety Net Error", "Oops!");
                         }
 
@@ -158,24 +169,18 @@ public class ResultActivity extends AppCompatActivity
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    performFinalActivities();
                 }
-                txtSafetyNetCallStatus.setText("SafetyNet Call Success : " + safetyNetCallStatus);
-                txtResponseValidationStatus.setText("Response Signature Valid : " + responseValidationStatus);
-                txtCtsProfileMatch.setText("CTS Profile Match : " + ctsProfileMatch);
-                if(safetyNetCallStatus.equalsIgnoreCase("false") || responseValidationStatus.equalsIgnoreCase("false")
-                        || ctsProfileMatch.equalsIgnoreCase("false"))
-                    color = Color.RED;
-                else if (safetyNetCallStatus.equalsIgnoreCase("true") && responseValidationStatus.equalsIgnoreCase("true")
-                        && ctsProfileMatch.equalsIgnoreCase("true"))
-                    color = Color.GREEN;
-                else
-                    color = Color.YELLOW;
-                setActivityBackgroundColor(color);
+
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 Log.i("Failure: ", "Rest call failed");
+                safetyNetCallStatus = "true";
+                ctsProfileMatch = "unknown";
+                responseValidationStatus = "unknown";
+                performFinalActivities();
             }
         });
 
@@ -184,5 +189,21 @@ public class ResultActivity extends AppCompatActivity
     public void setActivityBackgroundColor(int color) {
         View view = this.getWindow().getDecorView();
         view.setBackgroundColor(color);
+    }
+
+    public void performFinalActivities() {
+        prgDialogue.hide();
+        txtSafetyNetCallStatus.setText("SafetyNet Call Success : " + safetyNetCallStatus);
+        txtResponseValidationStatus.setText("Response Signature Valid : " + responseValidationStatus);
+        txtCtsProfileMatch.setText("CTS Profile Match : " + ctsProfileMatch);
+        if(safetyNetCallStatus.equalsIgnoreCase("false") || responseValidationStatus.equalsIgnoreCase("false")
+                || ctsProfileMatch.equalsIgnoreCase("false"))
+            color = Color.RED;
+        else if (safetyNetCallStatus.equalsIgnoreCase("true") && responseValidationStatus.equalsIgnoreCase("true")
+                && ctsProfileMatch.equalsIgnoreCase("true"))
+            color = Color.GREEN;
+        else
+            color = Color.YELLOW;
+        setActivityBackgroundColor(color);
     }
 }
