@@ -43,6 +43,7 @@ public class ResultActivity extends AppCompatActivity
     GoogleApiClient mGoogleApiClient;
     int color;
     ProgressDialog prgDialogue;
+    private static final String API_KEY = BuildConfig.API_KEY;
 
 
     @Override
@@ -141,7 +142,7 @@ public class ResultActivity extends AppCompatActivity
     public void doPost(Context context, String jwsResult) {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = "https://www.googleapis.com/androidcheck/v1/attestations/verify?key=";
-        String apiKey = "AIzaSyAQx9dRBNiz1BKRxGlY27rcM-A2YUWyhdQ";
+        String apiKey = API_KEY;
         JSONObject jsonMsg = new JSONObject();
         try {
             jsonMsg.put("signedAttestation", jwsResult);
