@@ -13,6 +13,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -71,6 +74,10 @@ public class ResultActivity extends AppCompatActivity
         txtCtsProfileMatch = (TextView) findViewById(R.id.txtCtsProfileMatch);
         txtResponseValidationStatus = (TextView) findViewById(R.id.txtResponseValidationStatus);
         txtSafetyNetCallStatus = (TextView) findViewById(R.id.txtSafetyNetCallStatus);
+        MobileAds.initialize(getApplicationContext(), String.valueOf(R.string.banner_ad_unit_id));
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("123b2b1e6f8df9b5").build();
+        mAdView.loadAd(adRequest);
         prgDialogue = new ProgressDialog(this);
         prgDialogue.setMessage("Please wait...");
         prgDialogue.show();

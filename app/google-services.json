@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "809335272069",
+    "firebase_url": "https://safetynettestapp.firebaseio.com",
+    "project_id": "safetynettestapp",
+    "storage_bucket": "safetynettestapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809335272069:android:03a9bfe903b874bb",
+        "android_client_info": {
+          "package_name": "com.vpals.apps.safetynettestapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "809335272069-uenti9oe5idjb9t8ih6m3ogmacogq2s4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDPgeDkrDJO0u1lse9iI5oJe2IWsXiF60"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
