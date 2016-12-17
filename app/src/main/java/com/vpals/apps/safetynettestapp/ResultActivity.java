@@ -2,7 +2,6 @@ package com.vpals.apps.safetynettestapp;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,8 +10,8 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -24,13 +23,10 @@ import com.google.android.gms.safetynet.SafetyNet;
 import com.google.android.gms.safetynet.SafetyNetApi;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
-
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
@@ -44,10 +40,10 @@ public class ResultActivity extends AppCompatActivity
     TextView txtSafetyNetCallStatus;
     TextView txtResponseValidationStatus;
     GoogleApiClient mGoogleApiClient;
+    ImageView resultImage;
     int color;
     ProgressDialog prgDialogue;
     private static final String API_KEY = BuildConfig.API_KEY;
-
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -56,7 +52,7 @@ public class ResultActivity extends AppCompatActivity
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        performFinalActivities();
     }
 
     @Override
@@ -78,10 +74,8 @@ public class ResultActivity extends AppCompatActivity
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice("123b2b1e6f8df9b5").build();
         mAdView.loadAd(adRequest);
-        prgDialogue = new ProgressDialog(this);
-        prgDialogue.setMessage("Please wait...");
-        prgDialogue.show();
         buildGoogleApiClient();
+        resultImage = (ImageView) findViewById(R.id.imageView3);
     }
 
     private void buildGoogleApiClient() {
@@ -94,6 +88,9 @@ public class ResultActivity extends AppCompatActivity
     }
 
     private void executeSafetyNetCall() {
+        prgDialogue = new ProgressDialog(this);
+        prgDialogue.setMessage("Please wait...");
+        prgDialogue.show();
         byte[] nonce = getRequestNonce();
         SafetyNet.SafetyNetApi.attest(mGoogleApiClient, nonce)
                 .setResultCallback(new ResultCallback<SafetyNetApi.AttestationResult>() {
@@ -104,7 +101,7 @@ public class ResultActivity extends AppCompatActivity
                             safetyNetCallStatus = "true";
                             Log.i("Safety Net Result", result.getJwsResult());
                             validateJwsResult(result.getJwsResult());
-                            SafetyNetResponseVO responseVo = new SafetyNetResponseVO();
+                            SafetyNetResponseVO responseVo;
                             responseVo = parseJsonWebSignature(result.getJwsResult());
                             if(responseVo.isCtsProfileMatch())
                                 ctsProfileMatch = "true";
@@ -191,7 +188,6 @@ public class ResultActivity extends AppCompatActivity
                 performFinalActivities();
             }
         });
-
     }
 
     public void setActivityBackgroundColor(int color) {
@@ -204,14 +200,20 @@ public class ResultActivity extends AppCompatActivity
         txtSafetyNetCallStatus.setText("SafetyNet Call Success : " + safetyNetCallStatus);
         txtResponseValidationStatus.setText("Response Signature Valid : " + responseValidationStatus);
         txtCtsProfileMatch.setText("CTS Profile Match : " + ctsProfileMatch);
-        if(safetyNetCallStatus.equalsIgnoreCase("false") || responseValidationStatus.equalsIgnoreCase("false")
-                || ctsProfileMatch.equalsIgnoreCase("false"))
+        if (safetyNetCallStatus.equalsIgnoreCase("false") || responseValidationStatus.equalsIgnoreCase("false")
+                || ctsProfileMatch.equalsIgnoreCase("false")) {
             color = Color.RED;
+            resultImage.setImageResource(R.drawable.ic_clear_white_24dp);
+        }
         else if (safetyNetCallStatus.equalsIgnoreCase("true") && responseValidationStatus.equalsIgnoreCase("true")
-                && ctsProfileMatch.equalsIgnoreCase("true"))
+                && ctsProfileMatch.equalsIgnoreCase("true")) {
             color = Color.GREEN;
-        else
+            resultImage.setImageResource(R.drawable.ic_done_white_200dp);
+        }
+        else {
             color = Color.YELLOW;
+            resultImage.setImageResource(R.drawable.ic_error_outline_white_200dp);
+        }
         setActivityBackgroundColor(color);
     }
 }
